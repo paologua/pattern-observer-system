@@ -27,17 +27,14 @@
     color:#eee !important;
     transition:0.15s;
   }
-
   .btn-nv {
     background:rgba(13,110,253,0.15) !important;
     border:1px solid rgba(13,110,253,0.25) !important;
   }
-
   .btn-pv {
     background:rgba(255,140,0,0.15) !important;
     border:1px solid rgba(255,140,0,0.25) !important;
   }
-
   .btn-v {
     background:rgba(46,204,113,0.15) !important;
     border:1px solid rgba(46,204,113,0.25) !important;
@@ -61,10 +58,31 @@
 
   .results-box {
     background:#111; border:1px solid #333; border-radius:6px;
-    padding:8px; font-size:12px;
+    padding:8px; font-size:12px; margin-bottom:8px;
   }
 
   #output { height:180px; font-family:Menlo,monospace; color:#0f0; }
+
+  /* Matrice 3x3 confronto NV/PV/V */
+  .matrix {
+    width:100%;
+    border-collapse:collapse;
+    margin-top:6px;
+    font-size:11px;
+  }
+  .matrix th, .matrix td {
+    border:1px solid #333;
+    padding:4px;
+    text-align:center;
+  }
+  .matrix th {
+    background:#181818;
+  }
+
+  .advanced-box {
+    background:#111; border:1px solid #333; border-radius:6px;
+    padding:8px; font-size:12px; margin-top:8px;
+  }
 </style>
 </head>
 <body>
@@ -103,6 +121,42 @@
   <div>Deviazioni: <span id="totalDev">0</span></div>
   <div>Intensità: <span id="rawIntensity">0</span></div>
   <div>Confronto canali: <span id="channelComparison">—</span></div>
+
+  <table class="matrix">
+    <thead>
+      <tr>
+        <th></th>
+        <th>NV</th>
+        <th>PV</th>
+        <th>V</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th>NV</th>
+        <td>—</td>
+        <td id="m_nv_pv">=</td>
+        <td id="m_nv_v">=</td>
+      </tr>
+      <tr>
+        <th>PV</th>
+        <td id="m_pv_nv">=</td>
+        <td>—</td>
+        <td id="m_pv_v">=</td>
+      </tr>
+      <tr>
+        <th>V</th>
+        <td id="m_v_nv">=</td>
+        <td id="m_v_pv">=</td>
+        <td>—</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="advanced-box">
+  <strong>Pattern avanzati rilevati:</strong>
+  <div id="advancedList">Nessun pattern avanzato rilevato.</div>
 </div>
 
 <h2>Export JSON</h2>
@@ -138,6 +192,18 @@ async function loadData() {
 }
 
 document.addEventListener("DOMContentLoaded", loadData);
+
+/* -------------------- PATTERN AVANZATI -------------------- */
+
+const PATTERN_AGGIUNTIVI = [
+  { nome: "Dipendenza Emotiva", cluster: "B", segnali: ["S11","S12","S23","S29"], direzione: "dipendenza" },
+  { nome: "Attaccamento Ansioso", cluster: "B", segnali: ["S07","S11","S18","S23"], direzione: "ansia" },
+  { nome: "Comunicazione Assertiva", cluster: "B", segnali: ["S08","S10","S13","S29"], direzione: "assertività" },
+  { nome: "Coping Attivo", cluster: "E", segnali: ["S02","S08","S13","S20"], direzione: "approccio" },
+  { nome: "Negazione", cluster: "A", segnali: ["S16","S21","S23","S26"], direzione: "evitamento" },
+  { nome: "Perfezionismo", cluster: "A", segnali: ["S03","S04","S16","S21"], direzione: "controllo" },
+  { nome: "Autosabotaggio", cluster: "D", segnali: ["S01","S04","S14","S27"], direzione: "autodistruttivo" }
+];
 
 /* -------------------- APTICO -------------------- */
 
@@ -241,6 +307,23 @@ function compareChannels(NV, PV, V) {
   return "Pattern misto";
 }
 
+function updateMatrix(NV, PV, V) {
+  const setCell = (id, a, b) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (a > b) el.textContent = ">";
+    else if (a < b) el.textContent = "<";
+    else el.textContent = "=";
+  };
+
+  setCell("m_nv_pv", NV, PV);
+  setCell("m_nv_v",  NV, V);
+  setCell("m_pv_nv", PV, NV);
+  setCell("m_pv_v",  PV, V);
+  setCell("m_v_nv",  V, NV);
+  setCell("m_v_pv",  V, PV);
+}
+
 function computeCongruence(dev) {
   const {NV,PV,V} = dev;
   let cross="congruente";
@@ -281,12 +364,37 @@ function computeDirection(dev, intensity) {
   return "Neutra";
 }
 
+function detectAdvancedPatterns(signals) {
+  const attivi = [];
+
+  PATTERN_AGGIUNTIVI.forEach(pattern => {
+    let match = true;
+
+    pattern.segnali.forEach(id => {
+      if (!signals[id] || signals[id].value === null || signals[id].value === 0) {
+        match = false;
+      }
+    });
+
+    if (match) {
+      attivi.push({
+        nome: pattern.nome,
+        cluster: pattern.cluster,
+        direzione: pattern.direzione
+      });
+    }
+  });
+
+  return attivi;
+}
+
 function runFullAnalysis(signals) {
   const dev = computeDeviations(signals);
   const congr = computeCongruence(dev);
   const intensity = computeIntensity(dev);
   const pattern = detectPattern(dev, congr);
   const direction = computeDirection(dev, intensity);
+  const advanced = detectAdvancedPatterns(signals);
 
   return {
     deviations: dev,
@@ -294,22 +402,45 @@ function runFullAnalysis(signals) {
     intensity,
     pattern,
     direction,
+    advancedPatterns: advanced,
     availablePatterns: PATTERNS ? PATTERNS.patterns : []
   };
 }
 
-/* -------------------- EXPORT -------------------- */
+/* -------------------- EXPORT / UI UPDATE -------------------- */
+
+function renderAdvancedPatterns(list) {
+  const box = document.getElementById("advancedList");
+  if (!list || list.length === 0) {
+    box.textContent = "Nessun pattern avanzato rilevato.";
+    return;
+  }
+  box.innerHTML = "";
+  list.forEach(p => {
+    const div = document.createElement("div");
+    div.textContent = "• " + p.nome;
+    box.appendChild(div);
+  });
+}
 
 function updateQuickResults() {
   let NV=0,PV=0,V=0,dev=0;
+  const signalsForAnalysis = {};
+
   document.querySelectorAll(".signal-block").forEach(b=>{
-    const a=b.querySelector(".btn.active-nv, .btn.active-pv, .btn.active-v");
-    if (!a) return;
+    const id = b.dataset.signalId;
+    const a = b.querySelector(".btn.active-nv, .btn.active-pv, .btn.active-v");
+    if (!a) {
+      signalsForAnalysis[id] = { value:null, description:null };
+      return;
+    }
     const val=Number(a.dataset.value);
     if (val>0) dev++;
     if (b.dataset.channel==="NV") NV+=val>0?1:0;
     if (b.dataset.channel==="PV") PV+=val>0?1:0;
     if (b.dataset.channel==="V") V+=val>0?1:0;
+
+    signalsForAnalysis[id] = { value:val, description:SCALES[id][val] };
   });
 
   document.getElementById("nvCount").textContent=NV;
@@ -319,6 +450,10 @@ function updateQuickResults() {
   document.getElementById("rawIntensity").textContent=Math.round((dev/30)*100);
 
   document.getElementById("channelComparison").textContent = compareChannels(NV, PV, V);
+  updateMatrix(NV, PV, V);
+
+  const analysis = runFullAnalysis(signalsForAnalysis);
+  renderAdvancedPatterns(analysis.advancedPatterns);
 }
 
 function exportJSON() {
@@ -349,7 +484,14 @@ function resetAll() {
   });
   ["sessionId","personId","context","timestamp","note"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("output").value="";
-  updateQuickResults();
+  document.getElementById("advancedList").textContent = "Nessun pattern avanzato rilevato.";
+  document.getElementById("nvCount").textContent="0";
+  document.getElementById("pvCount").textContent="0";
+  document.getElementById("vCount").textContent="0";
+  document.getElementById("totalDev").textContent="0";
+  document.getElementById("rawIntensity").textContent="0";
+  document.getElementById("channelComparison").textContent="—";
+  updateMatrix(0,0,0);
 }
 
 document.getElementById("exportBtn").onclick=exportJSON;
