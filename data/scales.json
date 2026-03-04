@@ -1,1 +1,182 @@
-
+{
+  "S01": {
+    "0": "Postura neutra o rilassata",
+    "1": "Postura leggermente tesa",
+    "2": "Postura rigida o contratta",
+    "3": "Postura molto rigida o difensiva"
+  },
+  "S02": {
+    "0": "Orientato verso l’interlocutore",
+    "1": "Leggero disallineamento",
+    "2": "Orientamento laterale",
+    "3": "Orientamento di fuga"
+  },
+  "S03": {
+    "0": "Distanza naturale",
+    "1": "Lieve variazione di distanza",
+    "2": "Distanza aumentata o ridotta evidente",
+    "3": "Distanza di fuga o invasione marcata"
+  },
+  "S04": {
+    "0": "Contatto visivo stabile",
+    "1": "Contatto visivo intermittente",
+    "2": "Contatto visivo evitante",
+    "3": "Fuga visiva costante"
+  },
+  "S05": {
+    "0": "Sguardo diretto",
+    "1": "Sguardo laterale",
+    "2": "Sguardo verso il basso",
+    "3": "Sguardo in ricerca di uscita o scansione"
+  },
+  "S06": {
+    "0": "Spalle aperte",
+    "1": "Spalle leggermente chiuse",
+    "2": "Spalle chiuse o protettive",
+    "3": "Spalle molto chiuse o difensive"
+  },
+  "S07": {
+    "0": "Mani ferme",
+    "1": "Piccoli movimenti delle mani",
+    "2": "Agitazione moderata delle mani",
+    "3": "Agitazione marcata o auto-contatto"
+  },
+  "S08": {
+    "0": "Contatto fisico naturale",
+    "1": "Contatto fisico ridotto",
+    "2": "Contatto fisico evitato",
+    "3": "Ritiro netto dal contatto fisico"
+  },
+  "S09": {
+    "0": "Corpo stabile",
+    "1": "Piccoli aggiustamenti posturali",
+    "2": "Instabilità evidente",
+    "3": "Irrequietezza marcata"
+  },
+  "S10": {
+    "0": "Movimenti a velocità normale",
+    "1": "Movimenti leggermente accelerati",
+    "2": "Movimenti veloci",
+    "3": "Movimenti molto veloci o agitati"
+  },
+  "S11": {
+    "0": "Sopracciglia neutre",
+    "1": "Lieve movimento delle sopracciglia",
+    "2": "Tensione evidente nelle sopracciglia",
+    "3": "Tensione marcata o contrazione"
+  },
+  "S12": {
+    "0": "Bocca neutra",
+    "1": "Labbra leggermente pressate",
+    "2": "Labbra serrate o trattenute",
+    "3": "Forte tensione nella bocca"
+  },
+  "S13": {
+    "0": "Mascella rilassata",
+    "1": "Lieve tensione della mascella",
+    "2": "Mascella serrata",
+    "3": "Mascella molto serrata o bruxismo"
+  },
+  "S14": {
+    "0": "Palpebre normali",
+    "1": "Battito aumentato",
+    "2": "Battito rapido o tensione",
+    "3": "Chiusure prolungate o stress"
+  },
+  "S15": {
+    "0": "Micro-tensioni assenti",
+    "1": "Micro-tensioni lievi",
+    "2": "Micro-tensioni frequenti",
+    "3": "Micro-tensioni costanti o marcate"
+  },
+  "S16": {
+    "0": "Respirazione normale",
+    "1": "Respirazione leggermente accelerata",
+    "2": "Respirazione veloce",
+    "3": "Respirazione molto veloce, alta o toracica"
+  },
+  "S17": {
+    "0": "Ritmo corporeo fluido",
+    "1": "Ritmo leggermente irregolare",
+    "2": "Ritmo irregolare",
+    "3": "Ritmo molto irregolare o a scatti"
+  },
+  "S18": {
+    "0": "Movimenti della testa naturali",
+    "1": "Piccoli movimenti della testa",
+    "2": "Movimenti frequenti della testa",
+    "3": "Movimenti rapidi o di fuga"
+  },
+  "S19": {
+    "0": "Movimenti delle mani naturali",
+    "1": "Piccoli gesti",
+    "2": "Gesti ampi o agitazione",
+    "3": "Gesti incontrollati o stress marcato"
+  },
+  "S20": {
+    "0": "Piedi fermi",
+    "1": "Piccoli movimenti dei piedi",
+    "2": "Agitazione dei piedi",
+    "3": "Movimenti di fuga o uscita"
+  },
+  "S21": {
+    "0": "Volume vocale normale",
+    "1": "Volume leggermente alto o basso",
+    "2": "Volume alto o basso evidente",
+    "3": "Volume molto alto, molto basso o instabile"
+  },
+  "S22": {
+    "0": "Pause naturali",
+    "1": "Pause leggermente aumentate",
+    "2": "Pause frequenti",
+    "3": "Pause molto frequenti o blocchi"
+  },
+  "S23": {
+    "0": "Ritmo vocale fluido",
+    "1": "Ritmo leggermente accelerato o lento",
+    "2": "Ritmo veloce o lento evidente",
+    "3": "Ritmo molto veloce, molto lento o irregolare"
+  },
+  "S24": {
+    "0": "Lessico naturale",
+    "1": "Lessico leggermente controllato",
+    "2": "Lessico controllato o filtrato",
+    "3": "Lessico molto controllato o costruito"
+  },
+  "S25": {
+    "0": "Struttura delle frasi fluida",
+    "1": "Piccole irregolarità nella struttura",
+    "2": "Frasi spezzate o incerte",
+    "3": "Frasi incoerenti o disorganizzate"
+  },
+  "S26": {
+    "0": "Ambiguità assente",
+    "1": "Ambiguità lieve",
+    "2": "Ambiguità moderata",
+    "3": "Ambiguità alta o intenzionale"
+  },
+  "S27": {
+    "0": "Narrativa coerente",
+    "1": "Piccole incongruenze",
+    "2": "Incongruenze evidenti",
+    "3": "Narrativa contraddittoria"
+  },
+  "S28": {
+    "0": "Micro-espressioni neutre",
+    "1": "Micro-espressioni lievi",
+    "2": "Micro-espressioni frequenti",
+    "3": "Micro-espressioni intense o incontrollate"
+  },
+  "S29": {
+    "0": "Movimenti del viso naturali",
+    "1": "Movimenti del viso aumentati",
+    "2": "Movimenti del viso irregolari",
+    "3": "Movimenti del viso molto irregolari o stressati"
+  },
+  "S30": {
+    "0": "Tono emotivo naturale",
+    "1": "Tono leggermente alterato",
+    "2": "Tono alterato evidente",
+    "3": "Tono molto alterato o instabile"
+  }
+}
