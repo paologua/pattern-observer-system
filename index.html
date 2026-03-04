@@ -21,10 +21,16 @@
   .btn {
     flex:1; padding:6px 4px; background:#1f1f1f; border:1px solid #333;
     border-radius:6px; font-size:11px; text-align:center; line-height:1.25;
+    transition:0.15s;
   }
   .btn span.num { display:block; font-weight:600; margin-bottom:2px; }
   .btn span.desc { display:block; opacity:0.9; }
-  .btn.active { background:#0d6efd; border-color:#0d6efd; color:#fff; }
+
+  /* COLORI CANALI */
+  .active-nv { background:#0d6efd !important; border-color:#0d6efd !important; color:#fff !important; }
+  .active-pv { background:#ff8c00 !important; border-color:#ff8c00 !important; color:#fff !important; }
+  .active-v  { background:#2ecc71 !important; border-color:#2ecc71 !important; color:#fff !important; }
+
   .actions { margin-top:10px; display:flex; gap:6px; }
   .actions button {
     flex:1; padding:10px; border:none; border-radius:6px;
@@ -110,6 +116,16 @@ async function loadData() {
 
 document.addEventListener("DOMContentLoaded", loadData);
 
+/* -------------------- APTICO -------------------- */
+
+function triggerHaptic() {
+  if (navigator.vibrate) navigator.vibrate(30);
+
+  if (window?.webkit?.messageHandlers?.haptic) {
+    try { window.webkit.messageHandlers.haptic.postMessage("selection"); } catch(e) {}
+  }
+}
+
 /* -------------------- UI -------------------- */
 
 function buildUI() {
@@ -148,8 +164,18 @@ function createGroup(title, key) {
       btn.innerHTML = `<span class="num">${v}</span><span class="desc">${SCALES[id][v]}</span>`;
 
       btn.onclick = () => {
-        row.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
+        row.querySelectorAll(".btn").forEach(b => {
+          b.classList.remove("active", "active-nv", "active-pv", "active-v");
+        });
+
+        const channel = block.dataset.channel;
+        if (channel === "NV") btn.classList.add("active-nv");
+        if (channel === "PV") btn.classList.add("active-pv");
+        if (channel === "V")  btn.classList.add("active-v");
+
         btn.classList.add("active");
+
+        triggerHaptic();
         updateQuickResults();
       };
 
@@ -276,7 +302,7 @@ function exportJSON() {
 }
 
 function resetAll() {
-  document.querySelectorAll(".btn.active").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".btn.active").forEach(b=>b.classList.remove("active","active-nv","active-pv","active-v"));
   ["sessionId","personId","context","timestamp","note"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("output").value="";
   updateQuickResults();
