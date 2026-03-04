@@ -88,17 +88,27 @@
 
 let SIGNALS = null;
 let SCALES = null;
+let PATTERNS = null;
 
 async function loadData() {
-  const s1 = await fetch("./data/signals.json").then(r => r.json());
-  const s2 = await fetch("./data/scales.json").then(r => r.json());
-  SIGNALS = s1;
-  SCALES = s2;
-  buildUI();
+  try {
+    const [signalsRes, scalesRes, patternsRes] = await Promise.all([
+      fetch("./data/signals.json"),
+      fetch("./data/scales.json"),
+      fetch("./data/patterns.json")
+    ]);
+
+    SIGNALS = await signalsRes.json();
+    SCALES = await scalesRes.json();
+    PATTERNS = await patternsRes.json();
+
+    buildUI();
+  } catch (e) {
+    console.error("Errore nel caricamento dei file JSON:", e);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", loadData);
-
 
 /* -------------------- UI -------------------- */
 
@@ -183,6 +193,7 @@ function computeIntensity(dev) {
 function detectPattern(dev, congr) {
   const {NV,PV,V} = dev;
   const c = congr.cross;
+
   if (NV>=6 && c==="conflitto interno") return "Conflitto interno";
   if (NV>=5 && PV>=2) return "Stress cognitivo";
   if (NV>=4 && c==="dissonanza NV–V") return "Inganno";
@@ -190,6 +201,10 @@ function detectPattern(dev, congr) {
   if (NV>=3 && PV===0 && V===0) return "Micro-ritiro";
   if (NV>=4 && PV>=1 && V>=1) return "Ansia sociale";
   if (NV<=1 && PV<=1 && V<=1) return "Baseline stabile";
+
+  if (PATTERNS && PATTERNS.patterns.includes("Baseline deviation"))
+    return "Baseline deviation";
+
   return "Pattern non determinato";
 }
 
@@ -207,7 +222,15 @@ function runFullAnalysis(signals) {
   const intensity = computeIntensity(dev);
   const pattern = detectPattern(dev, congr);
   const direction = computeDirection(dev, intensity);
-  return { deviations:dev, congruence:congr, intensity, pattern, direction };
+
+  return {
+    deviations: dev,
+    congruence: congr,
+    intensity,
+    pattern,
+    direction,
+    availablePatterns: PATTERNS ? PATTERNS.patterns : []
+  };
 }
 
 /* -------------------- EXPORT -------------------- */
