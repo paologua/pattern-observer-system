@@ -1,0 +1,38 @@
+{
+  "NV": {
+    "S01": "Postura",
+    "S02": "Orientamento del corpo",
+    "S03": "Distanza interpersonale",
+    "S04": "Contatto visivo",
+    "S05": "Direzione dello sguardo",
+    "S06": "Allineamento spalle",
+    "S07": "Mani a riposo",
+    "S08": "Contatto fisico",
+    "S09": "Stabilità del corpo",
+    "S10": "Velocità dei movimenti",
+    "S11": "Sopracciglia",
+    "S12": "Bocca",
+    "S13": "Mascella",
+    "S14": "Palpebre",
+    "S15": "Micro-tensioni",
+    "S16": "Respirazione",
+    "S17": "Ritmo corporeo",
+    "S18": "Movimenti testa",
+    "S19": "Movimenti mani",
+    "S20": "Movimenti piedi",
+    "S28": "Micro-espressioni",
+    "S29": "Movimenti del viso"
+  },
+  "PV": {
+    "S21": "Volume voce",
+    "S22": "Pause",
+    "S23": "Ritmo vocale"
+  },
+  "V": {
+    "S24": "Lessico",
+    "S25": "Struttura frasi",
+    "S26": "Ambiguità",
+    "S27": "Coerenza narrativa",
+    "S30": "Tono emotivo"
+  }
+}
