@@ -84,31 +84,28 @@
 <textarea id="output" readonly></textarea>
 
 <script>
-/* -------------------- DATASET -------------------- */
+/* -------------------- CARICAMENTO FILE -------------------- */
 
-const signals = {
-  NV: [
-    ["S01","Postura"],["S02","Orientamento del corpo"],["S03","Distanza interpersonale"],
-    ["S04","Contatto visivo"],["S05","Direzione dello sguardo"],["S06","Allineamento spalle"],
-    ["S07","Mani a riposo"],["S08","Contatto fisico"],["S09","Stabilità del corpo"],
-    ["S10","Velocità dei movimenti"],["S11","Sopracciglia"],["S12","Bocca"],
-    ["S13","Mascella"],["S14","Palpebre"],["S15","Micro-tensioni"],
-    ["S16","Respirazione"],["S17","Ritmo corporeo"],["S18","Movimenti testa"],
-    ["S19","Movimenti mani"],["S20","Movimenti piedi"],["S28","Micro-espressioni"],
-    ["S29","Movimenti del viso"]
-  ],
-  PV: [
-    ["S21","Volume voce"],["S22","Pause"],["S23","Ritmo vocale"]
-  ],
-  V: [
-    ["S24","Lessico"],["S25","Struttura frasi"],["S26","Ambiguità"],
-    ["S27","Coerenza narrativa"],["S30","Tono emotivo"]
-  ]
-};
+let SIGNALS = null;
+let SCALES = null;
 
-const scales = /* SCALES_JSON */;
+async function loadData() {
+  const s1 = await fetch("./data/signals.json").then(r => r.json());
+  const s2 = await fetch("./data/scales.json").then(r => r.json());
+  SIGNALS = s1;
+  SCALES = s2;
+  buildUI();
+}
 
-/* -------------------- UI BUILDER -------------------- */
+loadData();
+
+/* -------------------- UI -------------------- */
+
+function buildUI() {
+  createGroup("Non verbale (NV)", "NV");
+  createGroup("Paraverbale (PV)", "PV");
+  createGroup("Verbale (V)", "V");
+}
 
 function createGroup(title, key) {
   const container = document.getElementById("signals");
@@ -117,7 +114,7 @@ function createGroup(title, key) {
   t.textContent = title;
   container.appendChild(t);
 
-  signals[key].forEach(([id, name]) => {
+  SIGNALS[key].forEach(([id, name]) => {
     const block = document.createElement("div");
     block.className = "signal-block";
     block.dataset.signalId = id;
@@ -137,7 +134,7 @@ function createGroup(title, key) {
       btn.className = "btn";
       btn.dataset.value = v;
 
-      btn.innerHTML = `<span class="num">${v}</span><span class="desc">${scales[id][v]}</span>`;
+      btn.innerHTML = `<span class="num">${v}</span><span class="desc">${SCALES[id][v]}</span>`;
 
       btn.onclick = () => {
         row.querySelectorAll(".btn").forEach(b => b.classList.remove("active"));
@@ -153,10 +150,6 @@ function createGroup(title, key) {
   });
 }
 
-createGroup("Non verbale (NV)", "NV");
-createGroup("Paraverbale (PV)", "PV");
-createGroup("Verbale (V)", "V");
-
 /* -------------------- ANALISI -------------------- */
 
 function computeDeviations(signals) {
@@ -165,8 +158,8 @@ function computeDeviations(signals) {
     const val = signals[id].value;
     if (val === null || val === 0) continue;
     sum += val; count++;
-    if (["S01","S02","S03","S04","S05","S06","S07","S08","S09","S10","S11","S12","S13","S14","S15","S16","S17","S18","S19","S20","S28","S29"].includes(id)) NV++;
-    else if (["S21","S22","S23"].includes(id)) PV++;
+    if (SIGNALS.NV.find(s => s[0] === id)) NV++;
+    else if (SIGNALS.PV.find(s => s[0] === id)) PV++;
     else V++;
   }
   return { NV, PV, V, total:count, deviationScore: count? sum/(count*3):0 };
@@ -216,7 +209,7 @@ function runFullAnalysis(signals) {
   return { deviations:dev, congruence:congr, intensity, pattern, direction };
 }
 
-/* -------------------- EXPORT + RESET -------------------- */
+/* -------------------- EXPORT -------------------- */
 
 function updateQuickResults() {
   let NV=0,PV=0,V=0,dev=0;
@@ -250,7 +243,7 @@ function exportJSON() {
     if (!a) data.signals[id]={value:null,description:null};
     else {
       const v=Number(a.dataset.value);
-      data.signals[id]={value:v,description:scales[id][v]};
+      data.signals[id]={value:v,description:SCALES[id][v]};
     }
   });
 
