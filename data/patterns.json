@@ -1,0 +1,31 @@
+{
+  "clusters": {
+    "A": "Regolazione emotiva",
+    "B": "Intenzione relazionale",
+    "C": "Gestione del potere",
+    "D": "Inganno e manipolazione",
+    "E": "Cooperazione e conflitto",
+    "F": "Deviazioni e micro-pattern"
+  },
+  "patterns": [
+    "Stress cognitivo",
+    "Ansia sociale",
+    "Conflitto interno",
+    "Over-control",
+    "Interesse autentico",
+    "Seduzione",
+    "Micro-ritiro",
+    "Dominanza naturale",
+    "Dominanza aggressiva",
+    "Leadership naturale",
+    "Inganno",
+    "Manipolazione soft",
+    "Manipolazione hard",
+    "Cooperazione",
+    "Resistenza passiva",
+    "Resistenza attiva",
+    "Baseline deviation",
+    "Micro-shift emotivo",
+    "Micro-shift relazionale"
+  ]
+}
