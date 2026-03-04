@@ -1,12 +1,4 @@
 {
-  "clusters": {
-    "A": "Regolazione emotiva",
-    "B": "Intenzione relazionale",
-    "C": "Gestione del potere",
-    "D": "Inganno e manipolazione",
-    "E": "Cooperazione e conflitto",
-    "F": "Deviazioni e micro-pattern"
-  },
   "patterns": [
     "Stress cognitivo",
     "Ansia sociale",
