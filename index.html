@@ -18,18 +18,38 @@
   .signal-block { margin-bottom:10px; }
   .signal-label { font-size:13px; margin-bottom:4px; }
   .btn-row { display:flex; gap:4px; }
+
+  /* Stato base dei pulsanti — colore tenue per canale */
   .btn {
-    flex:1; padding:6px 4px; background:#1f1f1f; border:1px solid #333;
-    border-radius:6px; font-size:11px; text-align:center; line-height:1.25;
+    flex:1; padding:6px 4px;
+    border-radius:6px;
+    font-size:11px; text-align:center; line-height:1.25;
+    color:#eee !important;
     transition:0.15s;
   }
-  .btn span.num { display:block; font-weight:600; margin-bottom:2px; }
-  .btn span.desc { display:block; opacity:0.9; }
 
-  /* COLORI CANALI */
+  .btn-nv {
+    background:rgba(13,110,253,0.15) !important;
+    border:1px solid rgba(13,110,253,0.25) !important;
+  }
+
+  .btn-pv {
+    background:rgba(255,140,0,0.15) !important;
+    border:1px solid rgba(255,140,0,0.25) !important;
+  }
+
+  .btn-v {
+    background:rgba(46,204,113,0.15) !important;
+    border:1px solid rgba(46,204,113,0.25) !important;
+  }
+
+  /* Stato selezionato — colore saturo */
   .active-nv { background:#0d6efd !important; border-color:#0d6efd !important; color:#fff !important; }
   .active-pv { background:#ff8c00 !important; border-color:#ff8c00 !important; color:#fff !important; }
   .active-v  { background:#2ecc71 !important; border-color:#2ecc71 !important; color:#fff !important; }
+
+  .btn span.num { display:block; font-weight:600; margin-bottom:2px; }
+  .btn span.desc { display:block; opacity:0.9; }
 
   .actions { margin-top:10px; display:flex; gap:6px; }
   .actions button {
@@ -38,10 +58,12 @@
   }
   .primary { background:#0d6efd; color:#fff; }
   .secondary { background:#222; color:#eee; }
+
   .results-box {
     background:#111; border:1px solid #333; border-radius:6px;
     padding:8px; font-size:12px;
   }
+
   #output { height:180px; font-family:Menlo,monospace; color:#0f0; }
 </style>
 </head>
@@ -80,6 +102,7 @@
   <div>V: <span id="vCount">0</span></div>
   <div>Deviazioni: <span id="totalDev">0</span></div>
   <div>Intensità: <span id="rawIntensity">0</span></div>
+  <div>Confronto canali: <span id="channelComparison">—</span></div>
 </div>
 
 <h2>Export JSON</h2>
@@ -119,9 +142,13 @@ document.addEventListener("DOMContentLoaded", loadData);
 /* -------------------- APTICO -------------------- */
 
 function triggerHaptic() {
-  if (navigator.vibrate) navigator.vibrate(30);
+  if (navigator.vibrate) navigator.vibrate(15);
 
-  if (window?.webkit?.messageHandlers?.haptic) {
+  if (window.navigator?.haptics?.impact) {
+    try { window.navigator.haptics.impact({ style: "light" }); return; } catch(e) {}
+  }
+
+  if (window.webkit?.messageHandlers?.haptic) {
     try { window.webkit.messageHandlers.haptic.postMessage("selection"); } catch(e) {}
   }
 }
@@ -161,19 +188,20 @@ function createGroup(title, key) {
       btn.className = "btn";
       btn.dataset.value = v;
 
+      if (key === "NV") btn.classList.add("btn-nv");
+      if (key === "PV") btn.classList.add("btn-pv");
+      if (key === "V")  btn.classList.add("btn-v");
+
       btn.innerHTML = `<span class="num">${v}</span><span class="desc">${SCALES[id][v]}</span>`;
 
       btn.onclick = () => {
         row.querySelectorAll(".btn").forEach(b => {
-          b.classList.remove("active", "active-nv", "active-pv", "active-v");
+          b.classList.remove("active-nv", "active-pv", "active-v");
         });
 
-        const channel = block.dataset.channel;
-        if (channel === "NV") btn.classList.add("active-nv");
-        if (channel === "PV") btn.classList.add("active-pv");
-        if (channel === "V")  btn.classList.add("active-v");
-
-        btn.classList.add("active");
+        if (key === "NV") btn.classList.add("active-nv");
+        if (key === "PV") btn.classList.add("active-pv");
+        if (key === "V")  btn.classList.add("active-v");
 
         triggerHaptic();
         updateQuickResults();
@@ -200,6 +228,17 @@ function computeDeviations(signals) {
     else V++;
   }
   return { NV, PV, V, total:count, deviationScore: count? sum/(count*3):0 };
+}
+
+function compareChannels(NV, PV, V) {
+  if (NV === PV && PV === V) return "Equilibrio tra NV, PV e V";
+  if (NV > PV && NV > V) return "Dominanza NV";
+  if (PV > NV && PV > V) return "Dominanza PV";
+  if (V > NV && V > PV) return "Dominanza V";
+  if (NV === PV && NV > V) return "Allineamento NV–PV";
+  if (NV === V && NV > PV) return "Allineamento NV–V";
+  if (PV === V && PV > NV) return "Allineamento PV–V";
+  return "Pattern misto";
 }
 
 function computeCongruence(dev) {
@@ -264,7 +303,7 @@ function runFullAnalysis(signals) {
 function updateQuickResults() {
   let NV=0,PV=0,V=0,dev=0;
   document.querySelectorAll(".signal-block").forEach(b=>{
-    const a=b.querySelector(".btn.active");
+    const a=b.querySelector(".btn.active-nv, .btn.active-pv, .btn.active-v");
     if (!a) return;
     const val=Number(a.dataset.value);
     if (val>0) dev++;
@@ -272,11 +311,14 @@ function updateQuickResults() {
     if (b.dataset.channel==="PV") PV+=val>0?1:0;
     if (b.dataset.channel==="V") V+=val>0?1:0;
   });
+
   document.getElementById("nvCount").textContent=NV;
   document.getElementById("pvCount").textContent=PV;
   document.getElementById("vCount").textContent=V;
   document.getElementById("totalDev").textContent=dev;
   document.getElementById("rawIntensity").textContent=Math.round((dev/30)*100);
+
+  document.getElementById("channelComparison").textContent = compareChannels(NV, PV, V);
 }
 
 function exportJSON() {
@@ -289,7 +331,7 @@ function exportJSON() {
 
   document.querySelectorAll(".signal-block").forEach(b=>{
     const id=b.dataset.signalId;
-    const a=b.querySelector(".btn.active");
+    const a=b.querySelector(".btn.active-nv, .btn.active-pv, .btn.active-v");
     if (!a) data.signals[id]={value:null,description:null};
     else {
       const v=Number(a.dataset.value);
@@ -302,7 +344,9 @@ function exportJSON() {
 }
 
 function resetAll() {
-  document.querySelectorAll(".btn.active").forEach(b=>b.classList.remove("active","active-nv","active-pv","active-v"));
+  document.querySelectorAll(".btn").forEach(b=>{
+    b.classList.remove("active-nv","active-pv","active-v");
+  });
   ["sessionId","personId","context","timestamp","note"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("output").value="";
   updateQuickResults();
