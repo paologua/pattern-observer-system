@@ -101,6 +101,97 @@
   </div>
   <textarea id="output" readonly></textarea>
 </div>
+function computeDeviations(signals) {
+  let NV = 0, PV = 0, V = 0;
+  let sum = 0, count = 0;
+
+  for (const id in signals) {
+    const val = signals[id].value;
+    if (val === null || val === 0) continue;
+
+    sum += val;
+    count++;
+
+    if (["S01","S02","S03","S04","S05","S06","S07","S08","S09","S10","S11","S12","S13","S14","S15","S16","S17","S18","S19","S20","S28","S29"].includes(id)) NV++;
+    else if (["S21","S22","S23"].includes(id)) PV++;
+    else V++;
+  }
+
+  return {
+    NV,
+    PV,
+    V,
+    total: count,
+    deviationScore: count === 0 ? 0 : sum / (count * 3)
+  };
+}
+
+function computeCongruence(dev) {
+  const { NV, PV, V } = dev;
+
+  let internalNV = NV > 3 ? "alta" : NV > 1 ? "media" : "bassa";
+  let internalPV = PV > 1 ? "media" : "bassa";
+  let internalV  = V  > 1 ? "media" : "bassa";
+
+  let cross = "congruente";
+
+  if (NV > PV && PV > V) cross = "coerente";
+  if (NV > 0 && V > 0 && NV !== V) cross = "dissonanza NV–V";
+  if (PV > 0 && V > 0 && PV !== V) cross = "controllo narrativo";
+  if (NV > 0 && PV > 0 && V > 0 && (NV !== PV && PV !== V)) cross = "conflitto interno";
+
+  return {
+    internal: { NV: internalNV, PV: internalPV, V: internalV },
+    cross
+  };
+}
+
+function computeIntensity(dev) {
+  return Math.round(dev.deviationScore * 100);
+}
+
+function detectPattern(dev, congruence) {
+  const { NV, PV, V } = dev;
+  const cross = congruence.cross;
+
+  if (NV >= 6 && cross === "conflitto interno") return "Conflitto interno";
+  if (NV >= 5 && PV >= 2) return "Stress cognitivo";
+  if (NV >= 4 && cross === "dissonanza NV–V") return "Inganno";
+  if (PV >= 3 && V >= 2) return "Controllo narrativo";
+  if (NV >= 3 && PV === 0 && V === 0) return "Micro-ritiro";
+  if (NV >= 4 && PV >= 1 && V >= 1) return "Ansia sociale";
+  if (NV <= 1 && PV <= 1 && V <= 1) return "Baseline stabile";
+  if (NV >= 5 && PV === 0) return "Over-control";
+  if (NV >= 3 && PV >= 3) return "Attivazione emotiva";
+  if (NV >= 2 && V >= 3) return "Ambiguità narrativa";
+
+  return "Pattern non determinato";
+}
+
+function computeDirection(dev, intensity) {
+  if (intensity >= 70 && dev.NV >= 5) return "Fuga";
+  if (intensity >= 60 && dev.PV >= 3) return "Controllo";
+  if (intensity <= 30 && dev.V <= 1) return "Apertura";
+  if (dev.NV >= 3 && dev.V >= 2) return "Approccio";
+
+  return "Neutra";
+}
+
+function runFullAnalysis(signals) {
+  const dev = computeDeviations(signals);
+  const congr = computeCongruence(dev);
+  const intensity = computeIntensity(dev);
+  const pattern = detectPattern(dev, congr);
+  const direction = computeDirection(dev, intensity);
+
+  return {
+    deviations: dev,
+    congruence: congr,
+    intensity,
+    pattern,
+    direction
+  };
+}
 
 <script>
 // --- Dataset segnali ---
